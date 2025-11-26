@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZ Driving Theory Test Practice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .copyright {
+            font-size: 0.85em;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .login-screen, .mode-selection, .name-entry, .admin-panel, .test-screen, .results-screen, .edit-questions {
+            display: none;
+        }
+
+        .login-screen.active, .mode-selection.active, .name-entry.active, .admin-panel.active, .test-screen.active, .results-screen.active, .edit-questions.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .mode-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-card:hover {
+            border-color: #2a5298;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .mode-card h3 {
+            color: #2a5298;
+            margin-bottom: 10px;
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-size: 20px;
+            font-weight: bold;
+            color: #2a5298;
+            z-index: 1000;
+        }
+
+        .timer.warning {
+            color: #dc3545;
+            animation: pulse 1s infinite;
+        }
+
+        .end-test-btn {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: #2a5298;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .question-image {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .question-category {
+            color: #6c757d;
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            margin: 25px 0;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 12px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover {
+            border-color: #2a5298;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #2a5298;
+            background: #e3f2fd;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-label {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #2a5298;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .option-text {
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .road-code-ref {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .results-summary {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .results-summary .score {
+            font-size: 72px;
+            font-weight: bold;
+            color: #2a5298;
+            margin: 20px 0;
+        }
+
+        .results-summary .status {
+            font-size: 32px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .results-summary .status.pass {
+            color: #28a745;
+        }
+
+        .results-summary .status.fail {
+            color: #dc3545;
+        }
+
+        .results-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .results-details h3 {
+            color: #2a5298;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item .icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .admin-upload {
+            border: 2px dashed #2a5298;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .admin-upload:hover {
+            background: #e3f2fd;
+        }
+
+        .admin-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item .btn {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .question-list {
+            max-height: 600px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+
+        .question-item {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .question-item h4 {
+            color: #2a5298;
+            margin-bottom: 10px;
+        }
+
+        .question-item p {
+            margin: 8px 0;
+            color: #333;
+        }
+
+        .question-item .label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .edit-form {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .image-preview {
+            max-width: 400px;
+            max-height: 300px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .admin-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .admin-tab.active {
+            color: #2a5298;
+            border-bottom-color: #2a5298;
+        }
+
+        .admin-tab:hover {
+            color: #2a5298;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .default-image-preview {
+            max-width: 400px;
+            max-height: 300px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .storage-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2a5298;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 0; }
+            .container { border-radius: 0; min-height: 100vh; }
+            .header { padding: 20px; }
+            .header h1 { font-size: 1.5em; }
+            .content { padding: 20px; }
+            .timer { position: static; margin-bottom: 20px; text-align: center; width: 100%; }
+            .end-test-btn { position: static; margin-bottom: 10px; width: 100%; }
+            .btn { display: block; width: 100%; margin: 10px 0; padding: 15px; }
+            .question-card { padding: 20px; }
+            .question-text { font-size: 18px; }
+            .option { padding: 12px; }
+            .option-label { width: 30px; height: 30px; font-size: 14px; }
+            .option-text { font-size: 15px; }
+            .results-summary .score { font-size: 56px; }
+            .results-summary .status { font-size: 24px; }
+            .results-details { padding: 20px; }
+            .mode-card { padding: 20px; }
+            .file-item { flex-direction: column; align-items: flex-start; }
+            .file-item .btn { margin-top: 10px; width: 100%; }
+            .admin-tabs { flex-wrap: wrap; }
+            .admin-tab { flex: 1; min-width: 120px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 NZ Driving Theory Test</h1>
+            <p>Practice for your Class 1 Learner Licence</p>
+            <div class="copyright">© Copyright Raycart Ore All Rights Reserved</div>
+        </div>
+
+        <div class="content">
+            <!-- Mode Selection -->
+            <div class="mode-selection active" id="modeSelection">
+                <h2 style="margin-bottom: 30px; color: #2a5298;">Select Mode</h2>
+                <div class="mode-card" onclick="selectMode('exam')">
+                    <h3>📝 Take Exam</h3>
+                    <p>Start a timed practice test with 35 random questions</p>
+                </div>
+                <div class="mode-card" onclick="selectMode('admin')">
+                    <h3>⚙️ Admin Panel</h3>
+                    <p>Upload and manage test questions (password required)</p>
+                </div>
+            </div>
+
+            <!-- Login -->
+            <div class="login-screen" id="loginScreen">
+                <h2 style="margin-bottom: 30px; color: #2a5298;">Admin Login</h2>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password">
+                </div>
+                <button class="btn btn-primary" onclick="verifyAdmin()">Login</button>
+                <button class="btn btn-secondary" onclick="backToModeSelection()">Back</button>
+                <div id="loginError" class="alert alert-danger" style="display: none; margin-top: 15px;"></div>
+            </div>
+
+            <!-- Name Entry -->
+            <div class="name-entry" id="nameEntry">
+                <h2 style="margin-bottom: 30px; color: #2a5298;">Before You Begin</h2>
+                <div class="alert alert-info">
+                    <strong>Test Information:</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>35 multiple choice questions</li>
+                        <li>30 minutes time limit</li>
+                        <li>32 correct answers required to pass</li>
+                        <li>Questions and answers are randomized</li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    <label for="userName">Your Name</label>
+                    <input type="text" id="userName" placeholder="Enter your full name">
+                </div>
+                <button class="btn btn-primary" onclick="startTest()">Start Test</button>
+                <button class="btn btn-secondary" onclick="backToModeSelection()">Back</button>
+            </div>
+
+            <!-- Admin Panel -->
+            <div class="admin-panel" id="adminPanel">
+                <h2 style="margin-bottom: 30px; color: #2a5298;">Admin Panel</h2>
+                
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="switchAdminTab('upload')">📁 Upload PDFs</button>
+                    <button class="admin-tab" onclick="switchAdminTab('edit')">✏️ Edit Questions</button>
+                    <button class="admin-tab" onclick="switchAdminTab('settings')">⚙️ Settings</button>
+                    <button class="admin-tab" onclick="switchAdminTab('export')">📦 Export/Import</button>
+                </div>
+
+                <!-- Upload Tab -->
+                <div id="uploadTab" class="tab-content active">
+                    <div class="storage-info">
+                        <strong>💾 Storage:</strong> Browser localStorage (portable via export/import)
+                    </div>
+
+                    <div class="admin-upload" onclick="document.getElementById('pdfUpload').click()">
+                        <h3 style="color: #2a5298;">📁 Upload Test Questions</h3>
+                        <p>Click to upload PDF files (Max 20 files)</p>
+                        <input type="file" id="pdfUpload" accept=".pdf" multiple onchange="handlePDFUpload(event)">
+                    </div>
+                    <div id="uploadStatus"></div>
+                    <div class="file-list" id="fileList"></div>
+                </div>
+
+                <!-- Edit Tab -->
+                <div id="editTab" class="tab-content">
+                    <div class="alert alert-info">
+                        <strong>Edit Questions:</strong> Click on any question to edit details, answers, or upload images.
+                    </div>
+                    <div class="question-list" id="questionList"></div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settingsTab" class="tab-content">
+                    <h3 style="color: #2a5298; margin-bottom: 20px;">Default Image Settings</h3>
+                    
+                    <div class="storage-info">
+                        <strong>💾 Storage:</strong> Stored in browser (export to migrate)
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong>Current Default Image:</strong> Shown when a question doesn't have a specific image.
+                    </div>
+                    
+                    <img id="currentDefaultImage" class="default-image-preview" alt="Default image">
+                    
+                    <div class="form-group" style="margin-top: 30px;">
+                        <label>Upload New Default Image</label>
+                        <input type="file" id="defaultImageUpload" accept="image/*" onchange="updateDefaultImage(event)">
+                        <small style="color: #666; display: block; margin-top: 8px;">Recommended: 400×300 pixels. Formats: JPG, PNG, SVG</small>
+                    </div>
+
+                    <button class="btn btn-warning" onclick="resetDefaultImage()" style="margin-top: 20px;">Reset to Original</button>
+                </div>
+
+                <!-- Export/Import Tab -->
+                <div id="exportTab" class="tab-content">
+                    <h3 style="color: #2a5298; margin-bottom: 20px;">Export/Import Data</h3>
+                    
+                    <div class="alert alert-info">
+                        <strong>💡 Migration:</strong> Export all data (questions + images) to a single file. Import on any device to transfer everything.
+                    </div>
+
+                    <h4 style="margin: 30px 0 15px 0; color: #333;">Export Data</h4>
+                    <button class="btn btn-success" onclick="exportAllData()">📥 Download Complete Backup (JSON)</button>
+                    
+                    <h4 style="margin: 30px 0 15px 0; color: #333;">Import Data</h4>
+                    <div class="form-group">
+                        <label>Import Complete Backup</label>
+                        <input type="file" id="importBackup" accept=".json" onchange="importAllData(event)">
+                        <small style="color: #666; display: block; margin-top: 8px;">Upload the JSON backup file exported from another device</small>
+                    </div>
+
+                    <div id="exportStatus"></div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="backToModeSelection()">Back to Main Menu</button>
+                    <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+                </div>
+            </div>
+
+            <!-- Edit Question -->
+            <div class="edit-questions" id="editQuestions">
+                <h2 style="margin-bottom: 30px; color: #2a5298;">Edit Question</h2>
+                
+                <div class="edit-form">
+                    <input type="hidden" id="editQuestionIndex">
+                    
+                    <div class="form-group">
+                        <label>Question Number</label>
+                        <input type="text" id="editQuestionNumber" readonly style="background: #f0f0f0;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Question Text</label>
+                        <textarea id="editQuestionText"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" id="editCategory">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Question Image (optional)</label>
+                        <input type="file" id="editImageUpload" accept="image/*" onchange="previewImage(event)">
+                        <img id="imagePreview" class="image-preview" style="display: none;">
+                        <button class="btn btn-danger" onclick="removeImage()" style="display: none;" id="removeImageBtn">Remove Image</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Option A</label>
+                        <input type="text" id="editOptionA">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Option B</label>
+                        <input type="text" id="editOptionB">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Option C</label>
+                        <input type="text" id="editOptionC">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Option D</label>
+                        <input type="text" id="editOptionD">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Correct Answer</label>
+                        <select id="editCorrectAnswer" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                            <option value="A">Option A</option>
+                            <option value="B">Option B</option>
+                            <option value="C">Option C</option>
+                            <option value="D">Option D</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Road Code Reference</label>
+                        <input type="text" id="editRoadCodeRef" placeholder="e.g., Page 73">
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <button class="btn btn-success" onclick="saveQuestion()">💾 Save Changes</button>
+                        <button class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Screen -->
+            <div class="test-screen" id="testScreen">
+                <div class="timer" id="timer">30:00</div>
+                <button class="btn btn-danger end-test-btn" onclick="endTestEarly()">✖️ End Test</button>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="question-card" id="questionCard"></div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">Submit Answer</button>
+                    <button class="btn btn-secondary" id="nextBtn" onclick="nextQuestion()" style="display: none;">Next Question</button>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-screen" id="resultsScreen">
+                <div class="results-summary">
+                    <h2 style="color: #2a5298;">Test Complete!</h2>
+                    <div class="score" id="finalScore">0/35</div>
+                    <div class="status" id="passStatus">PASS</div>
+                </div>
+                <div class="results-details" id="resultsDetails"></div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="downloadResults()">📥 Download Results</button>
+                    <button class="btn btn-success" onclick="retakeTest()">🔄 Retake Test</button>
+                    <button class="btn btn-secondary" onclick="endTest()">✖️ End</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        const ADMIN_PASSWORD = "admin123";
+        const TOTAL_QUESTIONS = 35;
+        const TEST_DURATION = 30 * 60;
+        const PASS_MARK = 32;
+        const ORIGINAL_DEFAULT_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzFhMzg2YSIvPjx0ZXh0IHg9IjUwJSIgeT0iNDAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzIiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn5qXPC90ZXh0Pjx0ZXh0IHg9IjUwJSIgeT0iNjAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5OWiBEcml2aW5nIFRlc3Q8L3RleHQ+PC9zdmc+';
+
+        let testQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let timer = null;
+        let timeRemaining = TEST_DURATION;
+        let userName = "";
+        let testStartTime = null;
+        let shuffledOptions = [];
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Storage Functions - Use localStorage
+        function getQuestions() {
+            const data = localStorage.getItem('nzTestQuestions');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveQuestions(questions) {
+            localStorage.setItem('nzTestQuestions', JSON.stringify(questions));
+        }
+
+        function getDefaultImage() {
+            const custom = localStorage.getItem('nzDefaultImage');
+            return custom || ORIGINAL_DEFAULT_IMAGE;
+        }
+
+        function saveDefaultImage(imageData) {
+            localStorage.setItem('nzDefaultImage', imageData);
+        }
+
+        // Navigation
+        function selectMode(mode) {
+            if (mode === 'exam') showScreen('nameEntry');
+            else if (mode === 'admin') showScreen('loginScreen');
+        }
+
+        function showScreen(screenId) {
+            ['modeSelection', 'loginScreen', 'nameEntry', 'adminPanel', 'testScreen', 'resultsScreen', 'editQuestions'].forEach(s => {
+                document.getElementById(s).classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function backToModeSelection() {
+            showScreen('modeSelection');
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('userName').value = '';
+        }
+
+        function verifyAdmin() {
+            const pass = document.getElementById('adminPassword').value;
+            const err = document.getElementById('loginError');
+            if (pass === ADMIN_PASSWORD) {
+                showScreen('adminPanel');
+                switchAdminTab('upload');
+                loadFileList();
+            } else {
+                err.textContent = 'Incorrect password.';
+                err.style.display = 'block';
+                setTimeout(() => err.style.display = 'none', 3000);
+            }
+        }
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'upload') {
+                document.querySelector('.admin-tab:nth-child(1)').classList.add('active');
+                document.getElementById('uploadTab').classList.add('active');
+                loadFileList();
+            } else if (tab === 'edit') {
+                document.querySelector('.admin-tab:nth-child(2)').classList.add('active');
+                document.getElementById('editTab').classList.add('active');
+                loadQuestionList();
+            } else if (tab === 'settings') {
+                document.querySelector('.admin-tab:nth-child(3)').classList.add('active');
+                document.getElementById('settingsTab').classList.add('active');
+                loadSettings();
+            } else if (tab === 'export') {
+                document.querySelector('.admin-tab:nth-child(4)').classList.add('active');
+                document.getElementById('exportTab').classList.add('active');
+            }
+        }
+
+        function loadSettings() {
+            const img = getDefaultImage();
+            document.getElementById('currentDefaultImage').src = img;
+        }
+
+        function updateDefaultImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    saveDefaultImage(e.target.result);
+                    document.getElementById('currentDefaultImage').src = e.target.result;
+                    alert('Default image updated!');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetDefaultImage() {
+            if (confirm('Reset to original?')) {
+                localStorage.removeItem('nzDefaultImage');
+                document.getElementById('currentDefaultImage').src = ORIGINAL_DEFAULT_IMAGE;
+                alert('Reset complete!');
+            }
+        }
+
+        // PDF Upload
+        async function handlePDFUpload(event) {
+            const files = Array.from(event.target.files);
+            const status = document.getElementById('uploadStatus');
+            const existing = getQuestions();
+            
+            if (files.length > 20) {
+                status.innerHTML = '<div class="alert alert-danger">Maximum 20 files at once.</div>';
+                return;
+            }
+
+            status.innerHTML = '<div class="alert alert-info">Processing...</div>';
+            let success = 0;
+            let total = 0;
+
+            for (const file of files) {
+                try {
+                    const buffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument(buffer).promise;
+                    let text = '';
+
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        text += content.items.map(item => item.str).join(' ') + ' ';
+                    }
+
+                    const questions = extractQuestions(text);
+                    if (questions.length === 0) {
+                        status.innerHTML = `<div class="alert alert-danger">No questions in ${file.name}</div>`;
+                        continue;
+                    }
+
+                    existing.push(...questions);
+                    success++;
+                    total += questions.length;
+                } catch (err) {
+                    status.innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;
+                    return;
+                }
+            }
+
+            if (success > 0) {
+                saveQuestions(existing);
+                loadFileList();
+                status.innerHTML = `<div class="alert alert-success">${success} file(s), ${total} questions extracted. Go to Edit Questions tab to review.</div>`;
+            }
+            event.target.value = '';
+        }
+
+        function extractQuestions(text) {
+            const questions = [];
+            const blocks = text.split(/NO\.\s+QUESTION\s+YOUR\s+ANSWER\s+CORRECT\s+ANSWER\s+ROAD\s+CODE\s+REF/gi);
+            
+            for (let i = 1; i < blocks.length; i++) {
+                const block = blocks[i].trim();
+                const numMatch = block.match(/^(\d+)/);
+                if (!numMatch) continue;
+                
+                const qNum = parseInt(numMatch[1]);
+                const catIndex = block.indexOf('CATEGORY:');
+                if (catIndex === -1) continue;
+                
+                const qText = block.substring(numMatch[0].length, catIndex).trim();
+                const catSection = block.substring(catIndex + 9);
+                const catMatch = catSection.match(/^([^\d]+?)(?:\d|When|What|Does|You|If|Can|Who|Where|Under|Your)/);
+                const category = catMatch ? catMatch[1].trim() : 'General';
+                
+                const pageIndex = block.lastIndexOf('Page');
+                if (pageIndex === -1) continue;
+                
+                const beforePage = block.substring(0, pageIndex).trim();
+                const parts = beforePage.split(/\s{2,}/);
+                
+                let correctAns = '';
+                for (let j = parts.length - 1; j >= 0; j--) {
+                    if (parts[j].length > 3 && !parts[j].includes('CATEGORY') && !parts[j].match(/^\d+$/)) {
+                        correctAns = parts[j].trim();
+                        break;
+                    }
+                }
+                
+                const pageMatch = block.match(/Page\s+(\d+)/);
+                const ref = pageMatch ? `Page ${pageMatch[1]}` : 'Not specified';
+                
+                if (qText.length > 10 && correctAns.length > 2) {
+                    questions.push({
+                        number: qNum,
+                        question: qText,
+                        category: category,
+                        optionA: correctAns,
+                        optionB: 'Edit this',
+                        optionC: 'Edit this',
+                        optionD: 'Edit this',
+                        correctAnswer: 'A',
+                        roadCodeRef: ref,
+                        image: null
+                    });
+                }
+            }
+            return questions;
+        }
+
+        function loadFileList() {
+            const questions = getQuestions();
+            const list = document.getElementById('fileList');
+            
+            if (questions.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #6c757d;">No questions loaded. Upload PDFs to get started.</p>';
+                return;
+            }
+            
+            const withImages = questions.filter(q => q.image).length;
+            
+            list.innerHTML = `
+                <div class="alert alert-success">
+                    <strong>✓ Questions Loaded:</strong> ${questions.length} total<br>
+                    <strong>📷 With Images:</strong> ${withImages}<br>
+                    <strong>💾 Storage:</strong> Browser localStorage
+                </div>
+            `;
+        }
+
+        function loadQuestionList() {
+            const questions = getQuestions();
+            const list = document.getElementById('questionList');
+            
+            if (questions.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #6c757d;">No questions. Upload PDFs in the Upload PDFs tab first.</p>';
+                return;
+            }
+            
+            let html = `<h3 style="color: #2a5298;">Total: ${questions.length} questions</h3>`;
+            questions.forEach((q, i) => {
+                html += `
+                    <div class="question-item">
+                        <h4>Q${q.number}</h4>
+                        <p><span class="label">Text:</span> ${q.question.substring(0, 100)}${q.question.length > 100 ? '...' : ''}</p>
+                        <p><span class="label">Category:</span> ${q.category}</p>
+                        <p><span class="label">Correct:</span> Option ${q.correctAnswer} - ${q['option' + q.correctAnswer]}</p>
+                        <p><span class="label">${q.image ? '📷 Has Image' : 'No Image'}</span></p>
+                        <button class="btn btn-warning" onclick="editQuestion(${i})">✏️ Edit</button>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        function editQuestion(idx) {
+            const questions = getQuestions();
+            const q = questions[idx];
+            
+            document.getElementById('editQuestionIndex').value = idx;
+            document.getElementById('editQuestionNumber').value = q.number;
+            document.getElementById('editQuestionText').value = q.question;
+            document.getElementById('editCategory').value = q.category;
+            document.getElementById('editOptionA').value = q.optionA;
+            document.getElementById('editOptionB').value = q.optionB;
+            document.getElementById('editOptionC').value = q.optionC;
+            document.getElementById('editOptionD').value = q.optionD;
+            document.getElementById('editCorrectAnswer').value = q.correctAnswer;
+            document.getElementById('editRoadCodeRef').value = q.roadCodeRef;
+            
+            const preview = document.getElementById('imagePreview');
+            const removeBtn = document.getElementById('removeImageBtn');
+            
+            if (q.image) {
+                preview.src = q.image;
+                preview.style.display = 'block';
+                removeBtn.style.display = 'inline-block';
+            } else {
+                preview.style.display = 'none';
+                removeBtn.style.display = 'none';
+            }
+            
+            showScreen('editQuestions');
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    document.getElementById('removeImageBtn').style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imagePreview').src = '';
+            document.getElementById('editImageUpload').value = '';
+            document.getElementById('removeImageBtn').style.display = 'none';
+        }
+
+        function saveQuestion() {
+            const idx = parseInt(document.getElementById('editQuestionIndex').value);
+            const questions = getQuestions();
+            
+            const previewSrc = document.getElementById('imagePreview').src;
+            let imageData = questions[idx].image;
+            
+            if (previewSrc && previewSrc.startsWith('data:')) {
+                imageData = previewSrc;
+            } else if (!previewSrc || previewSrc === '') {
+                imageData = null;
+            }
+            
+            questions[idx] = {
+                number: parseInt(document.getElementById('editQuestionNumber').value),
+                question: document.getElementById('editQuestionText').value,
+                category: document.getElementById('editCategory').value,
+                optionA: document.getElementById('editOptionA').value,
+                optionB: document.getElementById('editOptionB').value,
+                optionC: document.getElementById('editOptionC').value,
+                optionD: document.getElementById('editOptionD').value,
+                correctAnswer: document.getElementById('editCorrectAnswer').value,
+                roadCodeRef: document.getElementById('editRoadCodeRef').value,
+                image: imageData
+            };
+            
+            saveQuestions(questions);
+            alert('Saved!');
+            showScreen('adminPanel');
+            switchAdminTab('edit');
+        }
+
+        function cancelEdit() {
+            showScreen('adminPanel');
+            switchAdminTab('edit');
+        }
+
+        function clearAllData() {
+            if (confirm('Clear ALL data? Cannot be undone!')) {
+                localStorage.removeItem('nzTestQuestions');
+                localStorage.removeItem('nzDefaultImage');
+                loadFileList();
+                alert('Cleared.');
+            }
+        }
+
+        // Export/Import
+        function exportAllData() {
+            const questions = getQuestions();
+            if (questions.length === 0) {
+                alert('No questions to export');
+                return;
+            }
+            
+            const backup = {
+                questions: questions,
+                defaultImage: localStorage.getItem('nzDefaultImage'),
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const json = JSON.stringify(backup, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `nz-test-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            const status = document.getElementById('exportStatus');
+            status.innerHTML = `<div class="alert alert-success">Backup downloaded! ${questions.length} questions exported.</div>`;
+        }
+
+        function importAllData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const status = document.getElementById('exportStatus');
+            status.innerHTML = '<div class="alert alert-info">Importing...</div>';
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    
+                    if (!backup.questions || !Array.isArray(backup.questions)) {
+                        throw new Error('Invalid backup format');
+                    }
+                    
+                    saveQuestions(backup.questions);
+                    if (backup.defaultImage) {
+                        saveDefaultImage(backup.defaultImage);
+                    }
+                    
+                    status.innerHTML = `<div class="alert alert-success">Import complete! ${backup.questions.length} questions loaded.</div>`;
+                    loadFileList();
+                    loadQuestionList();
+                } catch (error) {
+                    status.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // Test Functions
+        function startTest() {
+            userName = document.getElementById('userName').value.trim();
+            if (!userName) {
+                alert('Enter your name.');
+                return;
+            }
+            
+            const db = getQuestions();
+            
+            if (db.length < TOTAL_QUESTIONS) {
+                alert(`Need ${TOTAL_QUESTIONS} questions, have ${db.length}. Upload more PDFs in Admin Panel.`);
+                return;
+            }
+            
+            testQuestions = shuffle([...db]).slice(0, TOTAL_QUESTIONS);
+            currentQuestionIndex = 0;
+            userAnswers = new Array(TOTAL_QUESTIONS).fill(null);
+            testStartTime = new Date();
+            timeRemaining = TEST_DURATION;
+            
+            showScreen('testScreen');
+            startTimer();
+            displayQuestion();
+        }
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function displayQuestion() {
+            const q = testQuestions[currentQuestionIndex];
+            const labels = ['A', 'B', 'C', 'D'];
+            
+            const opts = [
+                { orig: 'A', text: q.optionA },
+                { orig: 'B', text: q.optionB },
+                { orig: 'C', text: q.optionC },
+                { orig: 'D', text: q.optionD }
+            ];
+            
+            shuffledOptions = shuffle(opts);
+            
+            const optsHTML = shuffledOptions.map((o, i) => `
+                <div class="option" onclick="selectOption(${i})">
+                    <div class="option-label">${labels[i]}</div>
+                    <div class="option-text">${o.text}</div>
+                </div>
+            `).join('');
+            
+            const img = q.image || getDefaultImage();
+            
+            document.getElementById('questionCard').innerHTML = `
+                <div class="question-number">Question ${currentQuestionIndex + 1} of ${TOTAL_QUESTIONS}</div>
+                <img src="${img}" class="question-image" alt="Question">
+                <div class="question-text">${q.question}</div>
+                <div class="question-category">Category: ${q.category}</div>
+                <div class="options">${optsHTML}</div>
+                <div class="feedback" id="feedback"></div>
+            `;
+            
+            document.getElementById('progressFill').style.width = `${((currentQuestionIndex + 1) / TOTAL_QUESTIONS) * 100}%`;
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function selectOption(idx) {
+            if (userAnswers[currentQuestionIndex] !== null) return;
+            document.querySelectorAll('.option').forEach((o, i) => {
+                o.classList.remove('selected');
+                if (i === idx) o.classList.add('selected');
+            });
+            userAnswers[currentQuestionIndex] = {
+                selectedIndex: idx,
+                selectedOriginal: shuffledOptions[idx].orig,
+                isCorrect: null
+            };
+        }
+
+        function submitAnswer() {
+            const ans = userAnswers[currentQuestionIndex];
+            if (!ans) {
+                alert('Select an answer.');
+                return;
+            }
+            
+            const q = testQuestions[currentQuestionIndex];
+            const correct = ans.selectedOriginal === q.correctAnswer;
+            userAnswers[currentQuestionIndex].isCorrect = correct;
+            
+            const correctIdx = shuffledOptions.findIndex(o => o.orig === q.correctAnswer);
+            
+            document.querySelectorAll('.option').forEach((o, i) => {
+                o.classList.add('disabled');
+                if (i === correctIdx) o.classList.add('correct');
+                else if (i === ans.selectedIndex && !correct) o.classList.add('incorrect');
+            });
+            
+            const fb = document.getElementById('feedback');
+            fb.classList.add('show');
+            if (correct) {
+                fb.classList.add('correct');
+                fb.innerHTML = '✓ Correct!';
+            } else {
+                fb.classList.add('incorrect');
+                fb.innerHTML = `✗ Incorrect. Correct: <strong>${q['option' + q.correctAnswer]}</strong><div class="road-code-ref">📖 ${q.roadCodeRef}</div>`;
+            }
+            
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= TOTAL_QUESTIONS) finishTest();
+            else displayQuestion();
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeRemaining--;
+                const m = Math.floor(timeRemaining / 60);
+                const s = timeRemaining % 60;
+                const t = document.getElementById('timer');
+                t.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if (timeRemaining <= 300) t.classList.add('warning');
+                if (timeRemaining <= 0) {
+                    clearInterval(timer);
+                    finishTest();
+                }
+            }, 1000);
+        }
+
+        function endTestEarly() {
+            if (confirm('End test early? Progress will be scored.')) {
+                clearInterval(timer);
+                finishTest();
+            }
+        }
+
+        function finishTest() {
+            clearInterval(timer);
+            const correct = userAnswers.filter(a => a && a.isCorrect).length;
+            const unanswered = userAnswers.filter(a => a === null).length;
+            const passed = correct >= PASS_MARK;
+            const duration = Math.floor((new Date() - testStartTime) / 1000);
+            
+            document.getElementById('finalScore').textContent = `${correct}/${TOTAL_QUESTIONS}`;
+            document.getElementById('passStatus').textContent = passed ? 'PASSED ✓' : 'FAILED ✗';
+            document.getElementById('passStatus').className = passed ? 'status pass' : 'status fail';
+            
+            document.getElementById('resultsDetails').innerHTML = `
+                <h3>Test Summary: ${userName}</h3>
+                <div class="result-item"><div><span class="icon">✓</span>Correct:</div><div><strong>${correct}</strong></div></div>
+                <div class="result-item"><div><span class="icon">✗</span>Incorrect:</div><div><strong>${TOTAL_QUESTIONS - correct - unanswered}</strong></div></div>
+                <div class="result-item"><div><span class="icon">⊗</span>Unanswered:</div><div><strong>${unanswered}</strong></div></div>
+                <div class="result-item"><div><span class="icon">⏱</span>Time:</div><div><strong>${Math.floor(duration / 60)}m ${duration % 60}s</strong></div></div>
+                <div class="result-item"><div><span class="icon">🎯</span>Pass Mark:</div><div><strong>${PASS_MARK}/${TOTAL_QUESTIONS}</strong></div></div>
+            `;
+            showScreen('resultsScreen');
+        }
+
+        function downloadResults() {
+            const correct = userAnswers.filter(a => a && a.isCorrect).length;
+            const passed = correct >= PASS_MARK;
+            let csv = `NZ Test Results\n\nName:,${userName}\nDate:,${new Date().toLocaleDateString()}\nScore:,${correct}/${TOTAL_QUESTIONS}\nStatus:,${passed ? 'PASSED' : 'FAILED'}\n\nNo.,Question,Your Answer,Correct,Result,Reference\n`;
+            testQuestions.forEach((q, i) => {
+                const a = userAnswers[i];
+                const your = a ? `Option ${a.selectedOriginal}` : 'Unanswered';
+                const cor = `Option ${q.correctAnswer}`;
+                csv += `${i + 1},"${q.question.replace(/"/g, '""')}","${your}","${cor}","${a && a.isCorrect ? 'Correct' : 'Incorrect'}","${q.roadCodeRef}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `NZ_Test_${userName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function retakeTest() {
+            timeRemaining = TEST_DURATION;
+            document.getElementById('timer').classList.remove('warning');
+            startTest();
+        }
+
+        function endTest() {
+            if (confirm('End test?')) backToModeSelection();
+        }
+
+        window.onload = () => {
+            console.log('NZ Driving Test App Loaded');
+            const q = getQuestions();
+            console.log(`${q.length} questions available`);
+        };
+    </script>
+</body>
+</html>
