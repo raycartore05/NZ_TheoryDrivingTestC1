@@ -43,12 +43,6 @@
             opacity: 0.9;
         }
 
-        .copyright {
-            font-size: 0.85em;
-            margin-top: 10px;
-            opacity: 0.8;
-        }
-
         .content {
             padding: 40px;
         }
@@ -164,6 +158,53 @@
         .btn-info:hover {
             background: #138496;
             transform: translateY(-2px);
+        }
+
+        .load-questions-btn {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 30px auto;
+            display: block;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+        }
+
+        .load-questions-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .load-questions-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .questions-status {
+            text-align: center;
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #2a5298;
+        }
+
+        .questions-status p {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .questions-status .count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2a5298;
+        }
+
+        .questions-status .date {
+            font-size: 14px;
+            color: #666;
         }
 
         .mode-card {
@@ -577,6 +618,30 @@
             border-left: 4px solid #2a5298;
         }
 
+        .path-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             body { padding: 0; }
             .container { border-radius: 0; min-height: 100vh; }
@@ -586,6 +651,7 @@
             .timer { position: static; margin-bottom: 20px; text-align: center; width: 100%; }
             .end-test-btn { position: static; margin-bottom: 10px; width: 100%; }
             .btn { display: block; width: 100%; margin: 10px 0; padding: 15px; }
+            .load-questions-btn { max-width: 100%; }
             .question-card { padding: 20px; }
             .question-text { font-size: 18px; }
             .option { padding: 12px; }
@@ -614,6 +680,18 @@
             <!-- Mode Selection -->
             <div class="mode-selection active" id="modeSelection">
                 <h2 style="margin-bottom: 30px; color: #2a5298;">Select Mode</h2>
+                
+                <!-- Load Questions Button -->
+                <button class="btn load-questions-btn" id="loadQuestionsBtn" onclick="loadLatestQuestionsFromGitHub()">
+                    📥 Load Latest Questions from GitHub
+                </button>
+
+                <!-- Questions Status -->
+                <div class="questions-status" id="questionsStatus">
+                    <p class="count" id="questionCount">No questions loaded</p>
+                    <p class="date" id="lastUpdated"></p>
+                </div>
+
                 <div class="mode-card" onclick="selectMode('exam')">
                     <h3>📝 Take Exam</h3>
                     <p>Start a timed practice test with 35 random questions</p>
@@ -669,8 +747,10 @@
 
                 <!-- Upload Tab -->
                 <div id="uploadTab" class="tab-content active">
-                    <div class="storage-info">
-                        <strong>💾 Storage:</strong> Browser localStorage (portable via export/import)
+                    <div class="path-info">
+                        <strong>📂 Data Folder:</strong> test-data/<br>
+                        <strong>📄 Questions:</strong> test-data/questions.json<br>
+                        <strong>🖼️ Images:</strong> test-data/images/
                     </div>
 
                     <div class="admin-upload" onclick="document.getElementById('pdfUpload').click()">
@@ -695,7 +775,8 @@
                     <h3 style="color: #2a5298; margin-bottom: 20px;">Default Image Settings</h3>
                     
                     <div class="storage-info">
-                        <strong>💾 Storage:</strong> Stored in browser (export to migrate)
+                        <strong>💾 Storage Method:</strong> File-based system<br>
+                        <strong>📂 Location:</strong> test-data/images/default.jpg
                     </div>
                     
                     <div class="alert alert-info">
@@ -715,20 +796,20 @@
 
                 <!-- Export/Import Tab -->
                 <div id="exportTab" class="tab-content">
-                    <h3 style="color: #2a5298; margin-bottom: 20px;">Export/Import Data</h3>
+                    <h3 style="color: #2a5298; margin-bottom: 20px;">Export/Import Data (Admin Only)</h3>
                     
-                    <div class="alert alert-info">
-                        <strong>💡 Migration:</strong> Export all data (questions + images) to a single file. Import on any device to transfer everything.
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Admin Use Only:</strong> This section is for manual backup and restoration by the administrator.
                     </div>
 
                     <h4 style="margin: 30px 0 15px 0; color: #333;">Export Data</h4>
-                    <button class="btn btn-success" onclick="exportAllData()">📥 Download Complete Backup (JSON)</button>
-                    
+                    <button class="btn btn-success" onclick="exportAllData()">📥 Download Complete Backup (ZIP)</button>
+                    <button class="btn btn-info" onclick="exportQuestionsJSON()">📄 Download Questions Only (JSON)</button>
+
                     <h4 style="margin: 30px 0 15px 0; color: #333;">Import Data</h4>
                     <div class="form-group">
-                        <label>Import Complete Backup</label>
-                        <input type="file" id="importBackup" accept=".json" onchange="importAllData(event)">
-                        <small style="color: #666; display: block; margin-top: 8px;">Upload the JSON backup file exported from another device</small>
+                        <label>Import Questions JSON</label>
+                        <input type="file" id="importJSON" accept=".json" onchange="importQuestionsJSON(event)">
                     </div>
 
                     <div id="exportStatus"></div>
@@ -844,12 +925,21 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
         const ADMIN_PASSWORD = "admin123";
         const TOTAL_QUESTIONS = 35;
         const TEST_DURATION = 30 * 60;
         const PASS_MARK = 32;
+        const DATA_PATH = './test-data/';
+        const IMAGES_PATH = DATA_PATH + 'images/';
+        const QUESTIONS_FILE = DATA_PATH + 'questions.json';
+        const DEFAULT_IMAGE_PATH = IMAGES_PATH + 'default.jpg';
         const ORIGINAL_DEFAULT_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzFhMzg2YSIvPjx0ZXh0IHg9IjUwJSIgeT0iNDAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMzIiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn5qXPC90ZXh0Pjx0ZXh0IHg9IjUwJSIgeT0iNjAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5OWiBEcml2aW5nIFRlc3Q8L3RleHQ+PC9zdmc+';
+        
+        // GitHub Configuration
+        const GITHUB_REPO_URL = 'https://raw.githubusercontent.com/raycartore05/NZ_TheoryDrivingTestC1/main/Question_Backup/';
+        const LATEST_FILE_URL = GITHUB_REPO_URL + 'latest.txt';
 
         let testQuestions = [];
         let currentQuestionIndex = 0;
@@ -859,26 +949,158 @@
         let userName = "";
         let testStartTime = null;
         let shuffledOptions = [];
+        let questionsData = [];
+        let pendingImages = new Map();
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // Storage Functions - Use localStorage
-        function getQuestions() {
-            const data = localStorage.getItem('nzTestQuestions');
-            return data ? JSON.parse(data) : [];
+        // GitHub Functions
+        async function loadLatestQuestionsFromGitHub() {
+            const btn = document.getElementById('loadQuestionsBtn');
+            const originalHTML = btn.innerHTML;
+            
+            try {
+                // Disable button and show loading
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading-spinner"></span> Downloading latest questions...';
+                
+                // Step 1: Fetch latest.txt to get the filename
+                const latestResponse = await fetch(LATEST_FILE_URL);
+                if (!latestResponse.ok) {
+                    throw new Error('Could not find latest.txt file on GitHub');
+                }
+                
+                const latestFilename = (await latestResponse.text()).trim();
+                console.log('Latest backup file:', latestFilename);
+                
+                // Step 2: Fetch the actual questions JSON file
+                const questionsURL = GITHUB_REPO_URL + latestFilename;
+                const questionsResponse = await fetch(questionsURL);
+                if (!questionsResponse.ok) {
+                    throw new Error('Could not download questions file');
+                }
+                
+                const questions = await questionsResponse.json();
+                
+                if (!Array.isArray(questions) || questions.length === 0) {
+                    throw new Error('Invalid questions format');
+                }
+                
+                // Step 3: Store in localStorage
+                questionsData = questions;
+                localStorage.setItem('questionsBackup', JSON.stringify(questions));
+                localStorage.setItem('questionsLoadedDate', new Date().toISOString());
+                localStorage.setItem('questionsSourceFile', latestFilename);
+                
+                // Step 4: Update UI
+                updateQuestionsStatus();
+                
+                // Success message
+                btn.innerHTML = '✓ Questions Loaded Successfully!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error loading questions from GitHub:', error);
+                
+                // Check if we have cached questions
+                const cached = localStorage.getItem('questionsBackup');
+                if (cached) {
+                    btn.innerHTML = '⚠️ Using Cached Questions (No Internet)';
+                    questionsData = JSON.parse(cached);
+                    updateQuestionsStatus();
+                } else {
+                    btn.innerHTML = '❌ Failed to Load Questions';
+                    alert('Could not load questions from GitHub. Please check your internet connection and try again.');
+                }
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }, 3000);
+            }
         }
 
-        function saveQuestions(questions) {
-            localStorage.setItem('nzTestQuestions', JSON.stringify(questions));
+        function updateQuestionsStatus() {
+            const count = questionsData.length;
+            const loadedDate = localStorage.getItem('questionsLoadedDate');
+            const sourceFile = localStorage.getItem('questionsSourceFile');
+            
+            const countEl = document.getElementById('questionCount');
+            const dateEl = document.getElementById('lastUpdated');
+            
+            if (count > 0) {
+                countEl.textContent = `${count} questions loaded`;
+                countEl.style.color = '#28a745';
+                
+                if (loadedDate) {
+                    const date = new Date(loadedDate);
+                    dateEl.textContent = `Last updated: ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
+                }
+                if (sourceFile) {
+                    dateEl.textContent += ` | Source: ${sourceFile}`;
+                }
+            } else {
+                countEl.textContent = 'No questions loaded';
+                countEl.style.color = '#dc3545';
+                dateEl.textContent = 'Click "Load Latest Questions" to download from GitHub';
+            }
         }
 
-        function getDefaultImage() {
-            const custom = localStorage.getItem('nzDefaultImage');
-            return custom || ORIGINAL_DEFAULT_IMAGE;
+        // File System Functions
+        async function loadQuestionsFromFile() {
+            try {
+                const response = await fetch(QUESTIONS_FILE);
+                if (!response.ok) return [];
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.log('No questions file found, checking cache');
+                const cached = localStorage.getItem('questionsBackup');
+                if (cached) {
+                    return JSON.parse(cached);
+                }
+                return [];
+            }
         }
 
-        function saveDefaultImage(imageData) {
-            localStorage.setItem('nzDefaultImage', imageData);
+        function saveQuestionsToFile(questions) {
+            const json = JSON.stringify(questions, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'questions.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            localStorage.setItem('questionsBackup', json);
+            
+            alert('Questions saved! Please place questions.json in the test-data/ folder.');
+        }
+
+        function getImagePath(imageFileName) {
+            if (!imageFileName) return null;
+            return IMAGES_PATH + imageFileName;
+        }
+
+        function generateImageFileName(questionNumber) {
+            return `q${questionNumber}_${Date.now()}.jpg`;
+        }
+
+        async function getDefaultImage() {
+            try {
+                const response = await fetch(DEFAULT_IMAGE_PATH);
+                if (response.ok) {
+                    return DEFAULT_IMAGE_PATH;
+                }
+            } catch (error) {
+                console.log('Using fallback default image');
+            }
+            return ORIGINAL_DEFAULT_IMAGE;
         }
 
         // Navigation
@@ -898,6 +1120,7 @@
             showScreen('modeSelection');
             document.getElementById('adminPassword').value = '';
             document.getElementById('userName').value = '';
+            updateQuestionsStatus();
         }
 
         function verifyAdmin() {
@@ -936,8 +1159,8 @@
             }
         }
 
-        function loadSettings() {
-            const img = getDefaultImage();
+        async function loadSettings() {
+            const img = await getDefaultImage();
             document.getElementById('currentDefaultImage').src = img;
         }
 
@@ -946,9 +1169,15 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    saveDefaultImage(e.target.result);
+                    pendingImages.set('default', e.target.result);
                     document.getElementById('currentDefaultImage').src = e.target.result;
-                    alert('Default image updated!');
+                    
+                    const link = document.createElement('a');
+                    link.href = e.target.result;
+                    link.download = 'default.jpg';
+                    link.click();
+                    
+                    alert('Default image ready! Save as default.jpg in test-data/images/');
                 };
                 reader.readAsDataURL(file);
             }
@@ -956,9 +1185,14 @@
 
         function resetDefaultImage() {
             if (confirm('Reset to original?')) {
-                localStorage.removeItem('nzDefaultImage');
                 document.getElementById('currentDefaultImage').src = ORIGINAL_DEFAULT_IMAGE;
-                alert('Reset complete!');
+                
+                const link = document.createElement('a');
+                link.href = ORIGINAL_DEFAULT_IMAGE;
+                link.download = 'default.jpg';
+                link.click();
+                
+                alert('Download complete! Save as default.jpg in test-data/images/');
             }
         }
 
@@ -966,10 +1200,11 @@
         async function handlePDFUpload(event) {
             const files = Array.from(event.target.files);
             const status = document.getElementById('uploadStatus');
-            const existing = getQuestions();
             
-            if (files.length > 20) {
-                status.innerHTML = '<div class="alert alert-danger">Maximum 20 files at once.</div>';
+            const existing = await loadQuestionsFromFile();
+            
+            if (existing.length + (files.length * 10) > 200) {
+                status.innerHTML = '<div class="alert alert-danger">Too many questions. Maximum 200.</div>';
                 return;
             }
 
@@ -1005,9 +1240,10 @@
             }
 
             if (success > 0) {
-                saveQuestions(existing);
+                questionsData = existing;
+                saveQuestionsToFile(existing);
                 loadFileList();
-                status.innerHTML = `<div class="alert alert-success">${success} file(s), ${total} questions extracted. Go to Edit Questions tab to review.</div>`;
+                status.innerHTML = `<div class="alert alert-success">${success} file(s), ${total} questions extracted. Save questions.json to test-data/</div>`;
             }
             event.target.value = '';
         }
@@ -1058,51 +1294,53 @@
                         optionD: 'Edit this',
                         correctAnswer: 'A',
                         roadCodeRef: ref,
-                        image: null
+                        imageFile: null
                     });
                 }
             }
             return questions;
         }
 
-        function loadFileList() {
-            const questions = getQuestions();
+        async function loadFileList() {
+            const questions = await loadQuestionsFromFile();
+            questionsData = questions;
             const list = document.getElementById('fileList');
             
             if (questions.length === 0) {
-                list.innerHTML = '<p style="text-align: center; color: #6c757d;">No questions loaded. Upload PDFs to get started.</p>';
+                list.innerHTML = '<p style="text-align: center; color: #6c757d;">No questions loaded. Upload PDFs or import questions.json</p>';
                 return;
             }
             
-            const withImages = questions.filter(q => q.image).length;
+            const withImages = questions.filter(q => q.imageFile).length;
             
             list.innerHTML = `
                 <div class="alert alert-success">
                     <strong>✓ Questions Loaded:</strong> ${questions.length} total<br>
                     <strong>📷 With Images:</strong> ${withImages}<br>
-                    <strong>💾 Storage:</strong> Browser localStorage
+                    <strong>📂 Location:</strong> test-data/questions.json
                 </div>
             `;
         }
 
-        function loadQuestionList() {
-            const questions = getQuestions();
+        async function loadQuestionList() {
+            const questions = await loadQuestionsFromFile();
+            questionsData = questions;
             const list = document.getElementById('questionList');
             
             if (questions.length === 0) {
-                list.innerHTML = '<p style="text-align: center; color: #6c757d;">No questions. Upload PDFs in the Upload PDFs tab first.</p>';
+                list.innerHTML = '<p style="text-align: center; color: #6c757d;">No questions. Upload PDFs first.</p>';
                 return;
             }
             
-            let html = `<h3 style="color: #2a5298;">Total: ${questions.length} questions</h3>`;
+            let html = `<h3 style="color: #2a5298;">Total: ${questions.length}</h3>`;
             questions.forEach((q, i) => {
                 html += `
                     <div class="question-item">
                         <h4>Q${q.number}</h4>
-                        <p><span class="label">Text:</span> ${q.question.substring(0, 100)}${q.question.length > 100 ? '...' : ''}</p>
+                        <p><span class="label">Text:</span> ${q.question.substring(0, 100)}...</p>
                         <p><span class="label">Category:</span> ${q.category}</p>
-                        <p><span class="label">Correct:</span> Option ${q.correctAnswer} - ${q['option' + q.correctAnswer]}</p>
-                        <p><span class="label">${q.image ? '📷 Has Image' : 'No Image'}</span></p>
+                        <p><span class="label">Correct:</span> ${q.correctAnswer} - ${q['option' + q.correctAnswer]}</p>
+                        <p><span class="label">${q.imageFile ? '📷 ' + q.imageFile : 'No Image'}</span></p>
                         <button class="btn btn-warning" onclick="editQuestion(${i})">✏️ Edit</button>
                     </div>
                 `;
@@ -1110,8 +1348,9 @@
             list.innerHTML = html;
         }
 
-        function editQuestion(idx) {
-            const questions = getQuestions();
+        async function editQuestion(idx) {
+            const questions = await loadQuestionsFromFile();
+            questionsData = questions;
             const q = questions[idx];
             
             document.getElementById('editQuestionIndex').value = idx;
@@ -1128,8 +1367,9 @@
             const preview = document.getElementById('imagePreview');
             const removeBtn = document.getElementById('removeImageBtn');
             
-            if (q.image) {
-                preview.src = q.image;
+            if (q.imageFile) {
+                const imgPath = getImagePath(q.imageFile);
+                preview.src = imgPath;
                 preview.style.display = 'block';
                 removeBtn.style.display = 'inline-block';
             } else {
@@ -1161,21 +1401,30 @@
             document.getElementById('removeImageBtn').style.display = 'none';
         }
 
-        function saveQuestion() {
+        async function saveQuestion() {
             const idx = parseInt(document.getElementById('editQuestionIndex').value);
-            const questions = getQuestions();
+            const questions = await loadQuestionsFromFile();
             
+            const qNum = parseInt(document.getElementById('editQuestionNumber').value);
+            let imageFile = questions[idx].imageFile;
             const previewSrc = document.getElementById('imagePreview').src;
-            let imageData = questions[idx].image;
             
             if (previewSrc && previewSrc.startsWith('data:')) {
-                imageData = previewSrc;
+                imageFile = generateImageFileName(qNum);
+                pendingImages.set(imageFile, previewSrc);
+                
+                const link = document.createElement('a');
+                link.href = previewSrc;
+                link.download = imageFile;
+                link.click();
+                
+                alert(`Image ready! Save as ${imageFile} in test-data/images/`);
             } else if (!previewSrc || previewSrc === '') {
-                imageData = null;
+                imageFile = null;
             }
             
             questions[idx] = {
-                number: parseInt(document.getElementById('editQuestionNumber').value),
+                number: qNum,
                 question: document.getElementById('editQuestionText').value,
                 category: document.getElementById('editCategory').value,
                 optionA: document.getElementById('editOptionA').value,
@@ -1184,11 +1433,12 @@
                 optionD: document.getElementById('editOptionD').value,
                 correctAnswer: document.getElementById('editCorrectAnswer').value,
                 roadCodeRef: document.getElementById('editRoadCodeRef').value,
-                image: imageData
+                imageFile: imageFile
             };
             
-            saveQuestions(questions);
-            alert('Saved!');
+            questionsData = questions;
+            saveQuestionsToFile(questions);
+            
             showScreen('adminPanel');
             switchAdminTab('edit');
         }
@@ -1198,87 +1448,141 @@
             switchAdminTab('edit');
         }
 
-        function clearAllData() {
-            if (confirm('Clear ALL data? Cannot be undone!')) {
-                localStorage.removeItem('nzTestQuestions');
-                localStorage.removeItem('nzDefaultImage');
+        async function clearAllData() {
+            if (confirm('Clear ALL data? You will need to re-download questions.json')) {
+                questionsData = [];
+                localStorage.removeItem('questionsBackup');
+                localStorage.removeItem('questionsLoadedDate');
+                localStorage.removeItem('questionsSourceFile');
+                saveQuestionsToFile([]);
                 loadFileList();
-                alert('Cleared.');
             }
         }
 
-        // Export/Import
-        function exportAllData() {
-            const questions = getQuestions();
+        // Export/Import Functions
+        async function exportAllData() {
+            const questions = await loadQuestionsFromFile();
             if (questions.length === 0) {
                 alert('No questions to export');
                 return;
             }
             
-            const backup = {
-                questions: questions,
-                defaultImage: localStorage.getItem('nzDefaultImage'),
-                exportDate: new Date().toISOString(),
-                version: '1.0'
-            };
+            const status = document.getElementById('exportStatus');
+            status.innerHTML = '<div class="alert alert-info">Creating backup...</div>';
             
-            const json = JSON.stringify(backup, null, 2);
+            try {
+                const zip = new JSZip();
+                
+                zip.file('questions.json', JSON.stringify(questions, null, 2));
+                
+                const imagesFolder = zip.folder('images');
+                
+                const defaultImg = await getDefaultImage();
+                if (defaultImg.startsWith('data:')) {
+                    const base64 = defaultImg.split(',')[1];
+                    imagesFolder.file('default.jpg', base64, {base64: true});
+                } else {
+                    try {
+                        const response = await fetch(defaultImg);
+                        const blob = await response.blob();
+                        imagesFolder.file('default.jpg', blob);
+                    } catch (e) {
+                        console.log('Could not fetch default image');
+                    }
+                }
+                
+                for (const q of questions) {
+                    if (q.imageFile) {
+                        try {
+                            const imgPath = getImagePath(q.imageFile);
+                            const response = await fetch(imgPath);
+                            const blob = await response.blob();
+                            imagesFolder.file(q.imageFile, blob);
+                        } catch (e) {
+                            console.log(`Could not fetch ${q.imageFile}`);
+                        }
+                    }
+                }
+                
+                const content = await zip.generateAsync({type: 'blob'});
+                
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `nz-test-backup-${new Date().toISOString().split('T')[0]}.zip`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                status.innerHTML = '<div class="alert alert-success">Backup downloaded! Extract to test-data/</div>';
+            } catch (error) {
+                status.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function exportQuestionsJSON() {
+            const questions = await loadQuestionsFromFile();
+            if (questions.length === 0) {
+                alert('No questions to export');
+                return;
+            }
+            
+            const json = JSON.stringify(questions, null, 2);
             const blob = new Blob([json], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
+            
             const a = document.createElement('a');
             a.href = url;
             a.download = `nz-test-backup-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            
-            const status = document.getElementById('exportStatus');
-            status.innerHTML = `<div class="alert alert-success">Backup downloaded! ${questions.length} questions exported.</div>`;
         }
 
-        function importAllData(event) {
+        async function importQuestionsJSON(event) {
             const file = event.target.files[0];
             if (!file) return;
             
             const status = document.getElementById('exportStatus');
             status.innerHTML = '<div class="alert alert-info">Importing...</div>';
             
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const backup = JSON.parse(e.target.result);
-                    
-                    if (!backup.questions || !Array.isArray(backup.questions)) {
-                        throw new Error('Invalid backup format');
-                    }
-                    
-                    saveQuestions(backup.questions);
-                    if (backup.defaultImage) {
-                        saveDefaultImage(backup.defaultImage);
-                    }
-                    
-                    status.innerHTML = `<div class="alert alert-success">Import complete! ${backup.questions.length} questions loaded.</div>`;
-                    loadFileList();
-                    loadQuestionList();
-                } catch (error) {
-                    status.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            try {
+                const text = await file.text();
+                const questions = JSON.parse(text);
+                
+                if (!Array.isArray(questions)) {
+                    throw new Error('Invalid format');
                 }
-            };
-            reader.readAsText(file);
+                
+                questionsData = questions;
+                localStorage.setItem('questionsBackup', text);
+                
+                status.innerHTML = `<div class="alert alert-success">Imported ${questions.length} questions! Data loaded in memory.</div>`;
+                loadFileList();
+            } catch (error) {
+                status.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+            
             event.target.value = '';
         }
 
         // Test Functions
-        function startTest() {
+        async function startTest() {
             userName = document.getElementById('userName').value.trim();
             if (!userName) {
                 alert('Enter your name.');
                 return;
             }
             
-            const db = getQuestions();
+            let db = await loadQuestionsFromFile();
+            
+            if (db.length === 0) {
+                const backup = localStorage.getItem('questionsBackup');
+                if (backup) {
+                    db = JSON.parse(backup);
+                }
+            }
             
             if (db.length < TOTAL_QUESTIONS) {
-                alert(`Need ${TOTAL_QUESTIONS} questions, have ${db.length}. Upload more PDFs in Admin Panel.`);
+                alert(`Need ${TOTAL_QUESTIONS} questions, have ${db.length}. Click "Load Latest Questions" on the home screen.`);
                 return;
             }
             
@@ -1302,7 +1606,7 @@
             return a;
         }
 
-        function displayQuestion() {
+        async function displayQuestion() {
             const q = testQuestions[currentQuestionIndex];
             const labels = ['A', 'B', 'C', 'D'];
             
@@ -1322,11 +1626,15 @@
                 </div>
             `).join('');
             
-            const img = q.image || getDefaultImage();
+            let img = await getDefaultImage();
+            if (q.imageFile) {
+                const imgPath = getImagePath(q.imageFile);
+                img = imgPath;
+            }
             
             document.getElementById('questionCard').innerHTML = `
                 <div class="question-number">Question ${currentQuestionIndex + 1} of ${TOTAL_QUESTIONS}</div>
-                <img src="${img}" class="question-image" alt="Question">
+                <img src="${img}" class="question-image" alt="Question" onerror="this.src='${ORIGINAL_DEFAULT_IMAGE}'">
                 <div class="question-text">${q.question}</div>
                 <div class="question-category">Category: ${q.category}</div>
                 <div class="options">${optsHTML}</div>
@@ -1463,10 +1771,17 @@
             if (confirm('End test?')) backToModeSelection();
         }
 
-        window.onload = () => {
+        window.onload = async () => {
             console.log('NZ Driving Test App Loaded');
-            const q = getQuestions();
-            console.log(`${q.length} questions available`);
+            console.log('GitHub Repo:', GITHUB_REPO_URL);
+            
+            // Check for cached questions
+            const cached = localStorage.getItem('questionsBackup');
+            if (cached) {
+                questionsData = JSON.parse(cached);
+            }
+            
+            updateQuestionsStatus();
         };
     </script>
 </body>
